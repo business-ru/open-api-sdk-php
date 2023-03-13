@@ -1,6 +1,6 @@
 <?php
 
-namespace Open\Api;
+namespace Open\Api\Adapter\Cache;
 
 use DateInterval;
 use Open\Api\Exception\SimpleFileCacheException;

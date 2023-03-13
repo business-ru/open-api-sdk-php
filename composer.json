@@ -12,23 +12,26 @@
   ],
   "extra": {
     "branch-alias": {
-      "dev-main": "1.0.9-dev"
+      "dev-main": "1.0.10-dev"
     }
   },
   "require": {
     "php": "^7.4|^8.1",
     "ext-curl": "*",
     "ext-json": "*",
-    "symfony/http-client": "^v6.2",
-    "psr/simple-cache": "^3.0",
+    "monolog/monolog": "^3.3",
     "psr/log": "^3.0",
-    "monolog/monolog": "^3.3"
+    "psr/http-client": "^1.0",
+    "psr/http-factory": "^1.0",
+    "psr/simple-cache": "^3.0",
+    "symfony/http-client": "^v6.2",
+    "symfony/http-client-contracts": "^3.2",
+    "symfony/error-handler": "^6.2"
   },
   "autoload": {
     "psr-4": {
       "Open\\Api\\": "src/",
-      "Open\\Api\\Adapter\\": "src/Adapter/",
-      "Open\\Api\\Adapter\\IlluminateOpenApi\\": "src/Adapter/Illuminate/"
+      "Open\\Api\\Adapter\\": "src/Adapter/"
     }
   }
 }
