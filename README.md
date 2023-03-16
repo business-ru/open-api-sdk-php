@@ -6,7 +6,7 @@
 
 ## Требования
 
-* PHP 7.4 и выше
+* PHP 8.1 и выше
 * PHP extension cURL
 
 ## Установка
@@ -28,9 +28,10 @@ require_once __DIR__ . '/../vendor/autoload.php';
 # Подключаем библиотеку Open Api Client
 require_once __DIR__ . '/../vendor/business-ru/open-api-sdk-php/src/OpenClient.php';
 # Создание экземпляра класса
-$openApiClient = new OpenClient($this->account_url,$this->appID,$this->secret_key);
+$openApiClient = new OpenClient($this->account_url, $this->appID, $this->secret_key);
 # Пример ссылки
-# ФФД /v1/ - 1.05 /v2/ - 1.2
+# ФФД /v1/ - 1.05
+# /v2/ - 1.2
 $this->account_url - "https://base-url/open-api/v2/"
 ```
 
