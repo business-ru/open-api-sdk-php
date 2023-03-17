@@ -92,18 +92,6 @@ final class OpenClient
         return $this->client->request($method, $url, $options);
     }
 
-    /**
-     * Публичный метод для работы с API
-     * @param string $method
-     * @param string $model
-     * @param array $options
-     * @return ResponseInterface
-     */
-    public function request(string $method, string $model, array $options = []): ResponseInterface
-    {
-        return $this->sendRequest($method, $model, $options);
-    }
-
     private function get(string $model, array $options): array
     {
         $options = [
