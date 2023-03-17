@@ -8,6 +8,11 @@ use Psr\SimpleCache\CacheInterface;
 use Symfony\Component\HttpClient\Exception\JsonException;
 use Symfony\Component\HttpClient\Exception\ServerException;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -46,8 +51,7 @@ final class OpenClient
     ) {
         $this->nonce = "nonce_" . str_replace(".", "", microtime(true));
 
-        $this->client = $client ?? HttpClient::createForBaseUri($account);
-        $this->client->withOptions([
+        $this->client = $client ?? HttpClient::createForBaseUri($account, [
             'headers' => [
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json'
@@ -86,8 +90,18 @@ final class OpenClient
         $url = $this->account . $model;
 
         return $this->client->request($method, $url, $options);
+    }
 
-
+    /**
+     * Публичный метод для работы с API
+     * @param string $method
+     * @param string $model
+     * @param array $options
+     * @return ResponseInterface
+     */
+    public function request(string $method, string $model, array $options = []): ResponseInterface
+    {
+        return $this->sendRequest($method, $model, $options);
     }
 
     private function get(string $model, array $options): array
