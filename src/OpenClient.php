@@ -100,10 +100,6 @@ final class OpenClient
 
         $this->throwStatusCode($response);
 
-        $responseArray = $response->toArray(false);
-
-        $this->log('debug', 'Ответ модели: ' . $model, $responseArray);
-
         return $response->toArray(false);
     }
 
