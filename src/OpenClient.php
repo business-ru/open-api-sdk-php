@@ -10,6 +10,7 @@ use Symfony\Component\HttpClient\Exception\ServerException;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
+use Throwable;
 
 /**
  * Class OpenClient - SDK Open API
@@ -99,7 +100,11 @@ final class OpenClient
 
         $this->throwStatusCode($response);
 
-        return $response->toArray(false);
+        $responseArray = $response->toArray(false);
+
+        $this->log('debug', 'Ответ модели: ' . $model, $responseArray);
+
+        return $responseArray;
     }
 
     private function post(string $model, array $options): array
@@ -115,7 +120,11 @@ final class OpenClient
             $response = $this->postRequest($model, $options);
         }
 
-        return $response->toArray(false);
+        $responseArray = $response->toArray(false);
+
+        $this->log('debug', 'Ответ модели: ' . $model, $responseArray);
+
+        return $responseArray;
     }
 
     private function postRequest(string $model, array $options): ResponseInterface
@@ -283,14 +292,20 @@ final class OpenClient
      */
     private function getNewToken(): string
     {
-        #Получаем новый токен
-        $this->token = $this->get(
+        $response = $this->get(
             "Token",
             [
                 "app_id" => $this->appID,
                 "nonce" => $this->nonce
             ]
-        )['token'];
+        );
+        try {
+            $this->token = $response['token'];
+        } catch (Throwable $throwable) {
+            $this->log('error', 'Ошибка при получении токена', $response);
+            throw new JsonException($throwable->getMessage(), $throwable->getCode());
+        }
+
         return $this->token;
     }
 
