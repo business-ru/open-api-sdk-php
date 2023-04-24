@@ -8,11 +8,6 @@ use Psr\SimpleCache\CacheInterface;
 use Symfony\Component\HttpClient\Exception\JsonException;
 use Symfony\Component\HttpClient\Exception\ServerException;
 use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -109,17 +104,29 @@ final class OpenClient
 
     private function post(string $model, array $options): array
     {
-        $options = [
+        $response = $this->postRequest($model, $options);
+
+        $statusCode = $response->getStatusCode();
+
+        $this->throwStatusCode($response);
+
+        if ($statusCode === 401) {
+            $options['token'] = $this->token;
+            $response = $this->postRequest($model, $options);
+        }
+
+        return $response->toArray(false);
+    }
+
+    private function postRequest(string $model, array $options): ResponseInterface
+    {
+        $params = [
             'headers' => [
                 'sign' => $this->getSign($options)
             ],
             'body' => json_encode($options, JSON_UNESCAPED_UNICODE)
         ];
-        $response = $this->sendRequest('POST', $model, $options);
-
-        $this->throwStatusCode($response);
-
-        return $response->toArray(false);
+        return $this->sendRequest('POST', $model, $params);
     }
 
     private function throwStatusCode(ResponseInterface $response): void
@@ -131,15 +138,12 @@ final class OpenClient
             case 200:
                 return;
             case 401:
-                $response = $response->toArray(false);
-                if (array_key_exists('result', $response)) {
-                    $this->log('error', $response["message"], $response);
-                    throw new JsonException($response["message"], $response["result"]);
-                }
+                $this->log('debug', 'Токен просрочен.', [
+                    'response' => $response->toArray(false),
+                    'status_code' => $response->getStatusCode(),
+                ]);
 
-                # Токен просрочен
                 $this->refreshToken();
-                $this->log('debug', 'Получен новый токен', $response);
                 return;
             case 500:
                 $this->log('critical', "SDK. Ошибка Open Api. 500 Internal Server Error", $response->toArray(false));
@@ -154,7 +158,6 @@ final class OpenClient
     {
         $this->token = $this->getNewToken();
         $this->cache->set('OpenApiToken ' . $this->appID, $this->token);
-
     }
 
     /**
