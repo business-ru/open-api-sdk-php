@@ -104,7 +104,7 @@ final class OpenClient
 
         $this->log('debug', 'Ответ модели: ' . $model, $responseArray);
 
-        return $responseArray;
+        return $response->toArray(false);
     }
 
     private function post(string $model, array $options): array
@@ -120,11 +120,7 @@ final class OpenClient
             $response = $this->postRequest($model, $options);
         }
 
-        $responseArray = $response->toArray(false);
-
-        $this->log('debug', 'Ответ модели: ' . $model, $responseArray);
-
-        return $responseArray;
+        return $response->toArray(false);
     }
 
     private function postRequest(string $model, array $options): ResponseInterface
