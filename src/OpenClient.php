@@ -284,20 +284,22 @@ final class OpenClient
      */
     private function getNewToken(): string
     {
-        $response = $this->get(
-            "Token",
-            [
-                "app_id" => $this->appID,
-                "nonce" => $this->nonce
-            ]
-        );
         try {
-            $this->token = $response['token'];
+            $this->token = $this->get(
+                "Token",
+                [
+                    "app_id" => $this->appID,
+                    "nonce" => $this->nonce
+                ]
+            )['token'];
         } catch (Throwable $throwable) {
-            $this->log('error', 'Ошибка при получении токена', $response);
+            $this->log('error', 'Ошибка при получении токена', [
+                'code' => $throwable->getCode(),
+                'line' => $throwable->getLine(),
+                'message' => $throwable->getMessage()
+            ]);
             throw new JsonException($throwable->getMessage(), $throwable->getCode());
         }
-
         return $this->token;
     }
 
