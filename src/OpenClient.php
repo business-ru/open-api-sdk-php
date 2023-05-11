@@ -25,12 +25,6 @@ final class OpenClient
     private string $token;
 
     /**
-     * Является уникальным идентификатором команды
-     * @var string $nonce
-     */
-    private string $nonce;
-
-    /**
      * SymfonyHttpClient constructor.
      * @param string $account - url аккаунта
      * @param string $appID - app_id интеграции
@@ -45,7 +39,6 @@ final class OpenClient
         private ?HttpClientInterface $client = null,
         private ?CacheInterface $cache = null
     ) {
-        $this->nonce = "nonce_" . str_replace(".", "", microtime(true));
 
         $this->client = $client ?? HttpClient::createForBaseUri($account, [
             'headers' => [
@@ -171,7 +164,7 @@ final class OpenClient
             "StateSystem",
             [
                 "app_id" => $this->appID,
-                "nonce" => $this->nonce,
+                "nonce" => $this->getNonce(),
                 "token" => $this->token,
             ]
         );
@@ -192,7 +185,7 @@ final class OpenClient
                     "report_type" => "false",
                     "author" => $commandName
                 ],
-                "nonce" => $this->nonce,
+                "nonce" => $this->getNonce(),
                 "token" => $this->token,
                 "type" => "openShift"
             ]
@@ -215,7 +208,7 @@ final class OpenClient
                     "report_type" => "false",
                     "author" => $commandName
                 ],
-                "nonce" => $this->nonce,
+                "nonce" => $this->getNonce(),
                 "token" => $this->token,
                 "type" => "closeShift"
             ]
@@ -234,7 +227,7 @@ final class OpenClient
             [
                 "app_id" => $this->appID,
                 "command" => $command,
-                "nonce" => $this->nonce,
+                "nonce" => $this->getNonce(),
                 "token" => $this->token,
                 "type" => "printCheck"
             ]
@@ -254,7 +247,7 @@ final class OpenClient
             [
                 "app_id" => $this->appID,
                 "command" => $command,
-                "nonce" => $this->nonce,
+                "nonce" => $this->getNonce(),
                 "token" => $this->token,
                 "type" => "printPurchaseReturn"
             ]
@@ -271,7 +264,7 @@ final class OpenClient
         return $this->get(
             "Command/$commandID",
             [
-                "nonce" => "nonce_" . str_replace(".", "", microtime(true)),
+                "nonce" => $this->getNonce(),
                 "token" => $this->token,
                 "app_id" => $this->appID
             ]
@@ -289,7 +282,7 @@ final class OpenClient
                 "Token",
                 [
                     "app_id" => $this->appID,
-                    "nonce" => $this->nonce
+                    "nonce" => $this->getNonce()
                 ]
             )['token'];
         } catch (Throwable $throwable) {
@@ -313,6 +306,15 @@ final class OpenClient
     {
         ksort($params);
         return md5(json_encode($params, JSON_UNESCAPED_UNICODE) . $this->secret);
+    }
+
+    /**
+     * Является уникальным идентификатором команды
+     * @return string
+     */
+    private function getNonce(): string
+    {
+        return "nonce_" . str_replace(".", "", microtime(true));
     }
 
     private function log(string $level, string $message, array $context = []): void
