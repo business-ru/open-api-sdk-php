@@ -315,7 +315,7 @@ final class OpenClient
     {
         return $this->request(
             "GET",
-            "Command/$commandID",
+            "Command/".$commandID,
             [
                 "nonce" => "nonce_" . str_replace(".", "", microtime(true)),
                 "token" => $this->token,
