@@ -262,7 +262,7 @@ final class OpenClient
     public function dataCommandID(string $commandID): array
     {
         return $this->get(
-            "Command/$commandID",
+            "Command/" . $commandID,
             [
                 "nonce" => $this->getNonce(),
                 "token" => $this->token,
