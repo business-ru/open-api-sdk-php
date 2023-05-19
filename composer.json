@@ -1,6 +1,6 @@
 {
   "name": "business-ru/open-api-sdk-php",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "SDK для работы с Open API",
   "type": "library",
   "license": "proprietary",
@@ -12,7 +12,7 @@
   ],
   "extra": {
     "branch-alias": {
-      "dev-dev": "dev"
+      "dev-dev": "1.0.10-dev"
     }
   },
   "require": {
