@@ -343,8 +343,7 @@ final class OpenClient
      */
     private function getSign(array $params): string
     {
-        ksort($params);
-        return md5(json_encode($params, JSON_UNESCAPED_UNICODE) . $this->secret);
+        return md5(json_encode($params) . $this->secret);
     }
 
     /**
