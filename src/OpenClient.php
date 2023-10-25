@@ -20,9 +20,9 @@ final class OpenClient
 {
     /**
      * Токен аккаунта
-     * @var string
+     * @var string|null
      */
-    private string $token;
+    private ?string $token = null;
 
     /**
      * SymfonyHttpClient constructor.
@@ -132,12 +132,21 @@ final class OpenClient
             case 200:
                 return;
             case 401:
+                $result = $response->toArray(false);
+                if (array_key_exists('Result', $result) && $result['Result'] === "1001") {
+                    throw new JsonException(json_encode($result, JSON_UNESCAPED_UNICODE));
+                }
                 $this->log('debug', 'Токен просрочен.', [
-                    'response' => $response->toArray(false),
-                    'status_code' => $response->getStatusCode(),
+                    'response' => $result,
+                    'status_code' => $statusCode,
                 ]);
-
                 $this->refreshToken();
+                return;
+            case 403:
+                $result = $response->toArray(false);
+                if (array_key_exists('Result', $result) && $result['Result'] === "1001") {
+                    throw new JsonException(json_encode($result, JSON_UNESCAPED_UNICODE));
+                }
                 return;
             case 500:
                 $this->log('critical', "SDK. Ошибка Open Api. 500 Internal Server Error", $response->toArray(false));
@@ -278,13 +287,15 @@ final class OpenClient
     private function getNewToken(): string
     {
         try {
-            $this->token = $this->get(
+            $response = $this->get(
                 "Token",
                 [
                     "app_id" => $this->appID,
                     "nonce" => $this->getNonce()
                 ]
-            )['token'];
+            );
+            $this->token = $response['token'];
+            return $this->token;
         } catch (Throwable $throwable) {
             $this->log('error', 'Ошибка при получении токена', [
                 'code' => $throwable->getCode(),
@@ -293,7 +304,6 @@ final class OpenClient
             ]);
             throw new JsonException($throwable->getMessage(), $throwable->getCode());
         }
-        return $this->token;
     }
 
     /**
