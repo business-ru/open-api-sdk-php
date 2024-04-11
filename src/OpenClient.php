@@ -10,7 +10,6 @@ use Symfony\Component\HttpClient\Exception\ServerException;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
-use Throwable;
 
 /**
  * Class OpenClient - SDK Open API
@@ -18,12 +17,6 @@ use Throwable;
  */
 final class OpenClient
 {
-    /**
-     * Токен аккаунта
-     * @var string|null
-     */
-    private ?string $token = null;
-
     /**
      * SymfonyHttpClient constructor.
      * @param string $account - url аккаунта
@@ -49,21 +42,6 @@ final class OpenClient
         ]);
 
         $this->cache = $cache ?? new SimpleFileCache();
-
-        $this->initToken();
-    }
-
-    /**
-     * Добавление токена в cache
-     * @return void
-     */
-    private function initToken(): void
-    {
-        if ($this->cache->has('OpenApiToken ' . $this->appID)) {
-            $this->token = $this->cache->get('OpenApiToken ' . $this->appID);
-        } else {
-            $this->refreshToken();
-        }
     }
 
     /**
@@ -105,7 +83,6 @@ final class OpenClient
         $this->throwStatusCode($response);
 
         if ($statusCode === 401) {
-            $options['token'] = $this->token;
             $response = $this->postRequest($model, $options);
         }
 
@@ -140,7 +117,6 @@ final class OpenClient
                     'response' => $result,
                     'status_code' => $statusCode,
                 ]);
-                $this->refreshToken();
                 return;
             case 403:
                 $result = $response->toArray(false);
@@ -157,12 +133,6 @@ final class OpenClient
         }
     }
 
-    private function refreshToken(): void
-    {
-        $this->token = $this->getNewToken();
-        $this->cache->set('OpenApiToken ' . $this->appID, $this->token);
-    }
-
     /**
      * Метод выполняет запрос на получение информации о состоянии системы.
      * @return array - Возвращаем ответ о состоянии системы
@@ -173,8 +143,7 @@ final class OpenClient
             "StateSystem",
             [
                 "app_id" => $this->appID,
-                "nonce" => $this->getNonce(),
-                "token" => $this->token,
+                "nonce" => $this->getNonce()
             ]
         );
     }
@@ -195,7 +164,6 @@ final class OpenClient
                     "author" => $commandName
                 ],
                 "nonce" => $this->getNonce(),
-                "token" => $this->token,
                 "type" => "openShift"
             ]
 
@@ -218,7 +186,6 @@ final class OpenClient
                     "author" => $commandName
                 ],
                 "nonce" => $this->getNonce(),
-                "token" => $this->token,
                 "type" => "closeShift"
             ]
         );
@@ -237,7 +204,6 @@ final class OpenClient
                 "app_id" => $this->appID,
                 "command" => $command,
                 "nonce" => $this->getNonce(),
-                "token" => $this->token,
                 "type" => "printCheck"
             ]
 
@@ -257,7 +223,6 @@ final class OpenClient
                 "app_id" => $this->appID,
                 "command" => $command,
                 "nonce" => $this->getNonce(),
-                "token" => $this->token,
                 "type" => "printPurchaseReturn"
             ]
         );
@@ -274,36 +239,9 @@ final class OpenClient
             "Command/" . $commandID,
             [
                 "nonce" => $this->getNonce(),
-                "token" => $this->token,
                 "app_id" => $this->appID
             ]
         );
-    }
-
-    /**
-     * Получаем токен
-     * @return string - Возвращаем токен
-     */
-    private function getNewToken(): string
-    {
-        try {
-            $response = $this->get(
-                "Token",
-                [
-                    "app_id" => $this->appID,
-                    "nonce" => $this->getNonce()
-                ]
-            );
-            $this->token = $response['token'];
-            return $this->token;
-        } catch (Throwable $throwable) {
-            $this->log('error', 'Ошибка при получении токена', [
-                'code' => $throwable->getCode(),
-                'line' => $throwable->getLine(),
-                'message' => $throwable->getMessage()
-            ]);
-            throw new JsonException($throwable->getMessage(), $throwable->getCode());
-        }
     }
 
     /**

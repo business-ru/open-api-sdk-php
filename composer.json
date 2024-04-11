@@ -12,7 +12,7 @@
   ],
   "extra": {
     "branch-alias": {
-      "dev-dev": "1.0.13-dev"
+      "dev-dev": "1.0.14-dev"
     }
   },
   "require": {
@@ -24,9 +24,9 @@
     "psr/http-client": "^1.0",
     "psr/http-factory": "^1.0",
     "psr/simple-cache": "^3.0",
-    "symfony/http-client": "^v6.2",
-    "symfony/http-client-contracts": "^3.2",
-    "symfony/error-handler": "^6.2"
+    "symfony/error-handler": "^v7.0.6",
+    "symfony/http-client": "^v7.0.6",
+    "symfony/http-client-contracts": "^3.4.2"
   },
   "autoload": {
     "psr-4": {
