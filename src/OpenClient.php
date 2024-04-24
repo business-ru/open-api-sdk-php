@@ -229,6 +229,43 @@ final class OpenClient
     }
 
     /**
+     * Метод выполняет запрос Чек расхода
+     * @param array $command - Массив параметров чека.
+     * @return array - Возвращает command_id
+     */
+    public function printCheckBuy(array $command): array
+    {
+        return $this->post(
+            "Command",
+            [
+                "app_id" => $this->appID,
+                "command" => $command,
+                "nonce" => $this->getNonce(),
+                "type" => "printCheckBuy"
+            ]
+
+        );
+    }
+
+    /**
+     * Метод выполняет запрос Чек возврат-расхода
+     * @param array $command - Массив параметров чека.
+     * @return array - Возвращает command_id
+     */
+    public function printCheckBuyReturn(array $command): array
+    {
+        return $this->post(
+            "Command",
+            [
+                "app_id" => $this->appID,
+                "command" => $command,
+                "nonce" => $this->getNonce(),
+                "type" => "printCheckBuyReturn"
+            ]
+        );
+    }
+
+    /**
      * Вернёт информацию о команде ФР
      * @param string $commandID - command_id чека.
      * @return array - Возвращает данные по command_id
