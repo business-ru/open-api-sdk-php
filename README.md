@@ -19,20 +19,33 @@ composer require business-ru/open-api-sdk-php
 
 ## Принцип работы
 
-### Создаем файл для работы с Open Api
+### Создание файла для работы с Open Api
 
 ```php
 <?php
-# Подключаем автозагрузку
-require_once __DIR__ . '/../vendor/autoload.php';
-# Подключаем библиотеку Open Api Client
-require_once __DIR__ . '/../vendor/business-ru/open-api-sdk-php/src/OpenClient.php';
+# Текущее местоположение проекта
+$projectDIR = dirname(__DIR__);
+
+# Подключение автозагрузки
+require_once $projectDIR . '/vendor/autoload.php';
+# Подключение библиотеки Open Api Client
+require_once $projectDIR . '/vendor/business-ru/open-api-sdk-php/src/OpenClient.php';
+
+use Open\Api\OpenClient;
+
+
+# Для ФФД /v1/ - 1.05
+$accountUrl = 'https://check.business.ru/open-api/v1/';
+
+# Для ФФД /v2/ - 1.2
+# $accountUrl = 'https://check.business.ru/open-api/v2/';
+
+# Данные клиента
+$appID = '';
+$secretKey = '';
+
 # Создание экземпляра класса
-$openApiClient = new OpenClient($this->account_url, $this->appID, $this->secret_key);
-# Пример ссылки
-# ФФД /v1/ - 1.05
-# /v2/ - 1.2
-$this->account_url - "https://base-url/open-api/v2/"
+$openApiClient = new OpenClient($accountUrl, $appID, $secretKey);
 ```
 
 ### Примеры использования
